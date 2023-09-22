@@ -2,18 +2,18 @@
 
 namespace PixlMint\Media\Helpers;
 
-use PixlMint\Media\Contracts\MediaProcessor;
 use Mhor\MediaInfo\Container\MediaInfoContainer;
 use Mhor\MediaInfo\MediaInfo;
 use Mhor\MediaInfo\Type\Video;
+use Nacho\ORM\RepositoryInterface;
+use Nacho\ORM\RepositoryManager;
+use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Models\EncodingJob;
 use PixlMint\Media\Models\Media;
 use PixlMint\Media\Models\MediaDirectory;
 use PixlMint\Media\Models\MediaSize;
 use PixlMint\Media\Models\ScaledMedia;
-use Nacho\ORM\RepositoryInterface;
-use Nacho\ORM\RepositoryManager;
-use PixlMint\CMS\Repository\EncodingJobRepository;
+use PixlMint\Media\Repository\EncodingJobRepository;
 
 class VideoMediaType extends AbstractMediaHelper implements MediaProcessor
 {
