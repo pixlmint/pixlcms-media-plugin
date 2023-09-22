@@ -11,17 +11,15 @@ use PixlMint\CMS\Helpers\CMSConfiguration;
 class Media extends AbstractModel implements ArrayableInterface, ModelInterface
 {
     private string $name;
-    private string $month;
-    private string $day;
+    private MediaGalleryDirectory $directory;
     /** @var array|ScaledMedia[] */
     private array $scaled;
 
-    public function __construct(string $name, MediaDirectory $directory, array $scaled = [])
+    public function __construct(string $name, MediaGalleryDirectory $directory, array $scaled = [])
     {
         $this->id = 0;
         $this->name = $name;
-        $this->month = $directory->getMonth();
-        $this->day = $directory->getDay();
+        $this->directory = $directory;
         $this->scaled = $scaled;
     }
 
@@ -31,7 +29,7 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
             return new ScaledMedia($scale->get('scaleName'), $scale->get('fileExtension'));
         }, $data->get('scaled'));
 
-        $mediaDirectory = new MediaDirectory($data->get('month'), $data->get('day'));
+        $mediaDirectory = new MediaGalleryDirectory($data->get('month'), $data->get('day'));
 
         return new Media($data->get('name'), $mediaDirectory, $scaled);
     }
@@ -39,16 +37,6 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getMonth(): string
-    {
-        return $this->month;
-    }
-
-    public function getDay(): string
-    {
-        return $this->day;
     }
 
     public function addScaled(ScaledMedia $scaled): void
@@ -77,10 +65,14 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
      */
     public function getMediaPath(?string $size = null): string
     {
+        $baseDir = [CMSConfiguration::mediaBaseUrl(), $this->directory->getRelativePath()];
         if ($size) {
-            return implode(DIRECTORY_SEPARATOR, [CMSConfiguration::mediaBaseUrl(), $this->month, $this->day, $size, $this->name . '.' . $this->getScaled($size)->getFileExtension()]);
+            $baseDir[] = $size;
+            $baseDir[] = $this->name . '.' . $this->getScaled($size)->getFileExtension();
+        } else {
+            $baseDir[] = $this->name;
         }
-        return implode(DIRECTORY_SEPARATOR, [CMSConfiguration::mediaBaseUrl(), $this->month, $this->day, $this->name]);
+        return implode(DIRECTORY_SEPARATOR, $baseDir);
     }
 
     /**
@@ -96,10 +88,11 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
      */
     public function getDirectory(?string $size = null): string
     {
+        $baseDir = [CMSConfiguration::mediaBaseUrl(), $this->directory->getRelativePath()];
         if ($size) {
-            return implode(DIRECTORY_SEPARATOR, [CMSConfiguration::mediaBaseUrl(), $this->month, $this->day, $size]);
+            $baseDir[] = $size;
         }
-        return implode(DIRECTORY_SEPARATOR, [CMSConfiguration::mediaBaseUrl(), $this->month, $this->day]);
+        return implode(DIRECTORY_SEPARATOR, $baseDir);
     }
 
     /**
@@ -113,8 +106,7 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
     public function toArray(): array
     {
         return [
-            'month' => $this->month,
-            'day' => $this->day,
+            'directory' => $this->directory->getRelativePath(),
             'name' => $this->name,
             'scaled' => array_map(function (ScaledMedia $s) {return $s->toArray();}, $this->scaled),
         ];

@@ -4,28 +4,28 @@ namespace PixlMint\Media\Helpers;
 
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Models\Media;
-use PixlMint\Media\Models\MediaDirectory;
+use PixlMint\Media\Models\MediaGalleryDirectory;
 
 /**
  * A Class for loading media that belongs to a specific entry
  */
 class EntryMediaLoader
 {
-    private string $entry;
+    private MediaGalleryDirectory $directory;
     private MediaProcessor $processor;
 
-    public function __construct(string $entry, MediaProcessor $processor)
+    public function __construct(MediaGalleryDirectory $directory, MediaProcessor $processor)
     {
-        $this->entry = $entry;
+        $this->directory = $directory;
         $this->processor = $processor;
     }
 
     /**
      * @return array|Media[]
      */
-    public static function run(string $entry, MediaProcessor $processor): array
+    public static function run(MediaGalleryDirectory $directory, MediaProcessor $processor): array
     {
-        $loader = new EntryMediaLoader($entry, $processor);
+        $loader = new EntryMediaLoader($directory, $processor);
         return $loader->loadMedia();
     }
 
@@ -34,14 +34,7 @@ class EntryMediaLoader
      */
     public function loadMedia(): array
     {
-        $this->cleanupEntryString();
-
-        $month = $this->getMediaMonth();
-        $day = $this->getMediaDay();
-
-        $directory = new MediaDirectory($month, $day);
-
-        $processorMedia = $this->processor->loadMedia($directory);
+        $processorMedia = $this->processor->loadMedia($this->directory);
         return array_map(function (Media $media) {
             return $this->mediaToArray($media);
         }, $processorMedia);
@@ -53,26 +46,5 @@ class EntryMediaLoader
             'source' => $media->getMediaPath(),
             'default' => $media->getMediaPath($this->processor->getDefaultScaled()),
         ];
-    }
-
-    private function cleanupEntryString(): void
-    {
-        if (str_starts_with($this->entry, DIRECTORY_SEPARATOR)) {
-            $this->entry = ltrim($this->entry, DIRECTORY_SEPARATOR);
-        }
-    }
-
-    private function getMediaMonth(): string
-    {
-        $splEntry = explode(DIRECTORY_SEPARATOR, $this->entry);
-
-        return $splEntry[0];
-    }
-
-    private function getMediaDay(): string
-    {
-        $splEntry = explode(DIRECTORY_SEPARATOR, $this->entry);
-
-        return $splEntry[1];
     }
 }

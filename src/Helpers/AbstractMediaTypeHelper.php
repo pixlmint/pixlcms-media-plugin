@@ -4,11 +4,11 @@ namespace PixlMint\Media\Helpers;
 
 use Exception;
 use PixlMint\Media\Models\Media;
-use PixlMint\Media\Models\MediaDirectory;
+use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\Mime;
 use PixlMint\CMS\Helpers\CMSConfiguration;
 
-abstract class AbstractMediaHelper
+abstract class AbstractMediaTypeHelper
 {
     public function deleteMedia(Media $media, bool $dryRun = false): bool|array
     {
@@ -43,11 +43,11 @@ abstract class AbstractMediaHelper
         return $ret;
     }
 
-    public function loadMedia(MediaDirectory $directory): array
+    public function loadMedia(MediaGalleryDirectory $directory): array
     {
         $mediaDir = CMSConfiguration::mediaDir();
         $media = [];
-        $dir = $directory->printDirectory();
+        $dir = $directory->getRelativePath();
         if (!is_dir("${mediaDir}/${dir}")) {
             return $media;
         }

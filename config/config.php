@@ -5,17 +5,17 @@ use PixlMint\Media\Controllers\MediaController;
 return [
     'routes' => [
         [
-            'route' => '/api/admin/entry/gallery/upload',
+            'route' => '/api/admin/gallery/upload',
             'controller' => MediaController::class,
             'function' => 'uploadMedia',
         ],
         [
-            'route' => '/api/admin/entry/media/load',
+            'route' => '/api/admin/gallery/load',
             'controller' => MediaController::class,
             'function' => 'loadMediaForEntry',
         ],
         [
-            'route' => '/api/admin/entry/media/delete',
+            'route' => '/api/admin/media/delete',
             'controller' => MediaController::class,
             'function' => 'deleteMedia',
         ],

@@ -10,12 +10,12 @@ use Nacho\ORM\RepositoryManager;
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Models\EncodingJob;
 use PixlMint\Media\Models\Media;
-use PixlMint\Media\Models\MediaDirectory;
+use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\MediaSize;
 use PixlMint\Media\Models\ScaledMedia;
 use PixlMint\Media\Repository\EncodingJobRepository;
 
-class VideoMediaType extends AbstractMediaHelper implements MediaProcessor
+class VideoMediaType extends AbstractMediaTypeHelper implements MediaProcessor
 {
     const DEFAULT_HEIGHT = 720;
     const DEFAULT_FPS = 30;
@@ -51,12 +51,12 @@ class VideoMediaType extends AbstractMediaHelper implements MediaProcessor
         return self::ENCODED_DIR;
     }
 
-    public function loadMedia(MediaDirectory $directory): array
+    public function loadMedia(MediaGalleryDirectory $directory): array
     {
         return parent::loadMedia($directory);
     }
 
-    public function storeMedia(array $file, MediaDirectory $directory): Media
+    public function storeMedia(array $file, MediaGalleryDirectory $directory): Media
     {
         $media = new Media(self::generateFileName($file), $directory);
         $media->addScaled(new ScaledMedia(self::ENCODED_DIR, 'webm'));

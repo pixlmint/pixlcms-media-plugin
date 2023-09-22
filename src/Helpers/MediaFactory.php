@@ -4,7 +4,7 @@ namespace PixlMint\Media\Helpers;
 
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Models\Media;
-use PixlMint\Media\Models\MediaDirectory;
+use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\ScaledMedia;
 
 class MediaFactory
@@ -33,7 +33,7 @@ class MediaFactory
         $mediaMonth = $this->getMediaMonth();
         $mediaDay = $this->getMediaDay();
 
-        $mediaDirectory = new MediaDirectory($mediaMonth, $mediaDay);
+        $mediaDirectory = new MediaGalleryDirectory($mediaMonth, $mediaDay);
 
         $processor = $this->getMediaHelper();
 

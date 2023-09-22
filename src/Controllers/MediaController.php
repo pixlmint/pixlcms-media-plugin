@@ -2,113 +2,75 @@
 
 namespace PixlMint\Media\Controllers;
 
-use PixlMint\Media\Contracts\MediaProcessor;
-use PixlMint\Media\Models\MediaDirectory;
-use PixlMint\Media\Models\Mime;
+use Nacho\Nacho;
+use PixlMint\Media\Helpers\MediaHelper;
+use PixlMint\Media\Models\MediaGalleryDirectory;
 use Nacho\Controllers\AbstractController;
 use Nacho\Models\Request;
-use Nacho\Nacho;
-use PixlMint\CMS\Helpers\CMSConfiguration;
 use PixlMint\CMS\Helpers\CustomUserHelper;
-use PixlMint\Media\Helpers\EntryMediaLoader;
-use PixlMint\Media\Helpers\ImageMediaType;
-use PixlMint\Media\Helpers\MediaFactory;
-use PixlMint\Media\Helpers\MimeHelper;
-use PixlMint\Media\Helpers\VideoMediaType;
 
 class MediaController extends AbstractController
 {
-    /** @var array|MediaProcessor[] $mediaHelpers */
-    private array $mediaHelpers = [];
+    private MediaHelper $mediaHelper;
 
     public function __construct(Nacho $nacho)
     {
+        $this->mediaHelper = new MediaHelper($nacho);
         parent::__construct($nacho);
-        $this->mediaHelpers['img'] = new ImageMediaType();
-        $this->mediaHelpers['vid'] = new VideoMediaType();
     }
 
     /**
-     * GET: /api/admin/entry/gallery/upload
+     * GET: /api/admin/gallery/upload
      */
     public function uploadMedia(): string
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
         }
-        if (!key_exists('entry', $_REQUEST)) {
-            return $this->json(['message' => 'Please define the Entry'], 400);
+        if (!key_exists('gallery', $_REQUEST)) {
+            return $this->json(['message' => 'Please define the target Gallery'], 400);
         }
+        $gallery = $_REQUEST['gallery'];
+        $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
+        $files = $_FILES;
 
-        $mediaDir = CMSConfiguration::mediaDir();
-        $entry = $_REQUEST['entry'];
-        $month = explode('/', $entry)[1];
-        $day = explode('/', $entry)[2];
-        $mediaDirectory = new MediaDirectory($month, $day);
-
-        if (!is_dir("${mediaDir}/${entry}")) {
-            mkdir("${mediaDir}${entry}", 0777, true);
-        }
-
-        $uploadedFiles = [];
-
-        foreach ($_FILES as $file) {
-            $helper = $this->getMediaHelper(Mime::init($file['type']));
-            $media = $helper->storeMedia($file, $mediaDirectory);
-            $tmpArr = $media->toFrontendArray();
-            $tmpArr['scaled']['default'] = $media->getMediaPath($helper->getDefaultScaled());
-            $uploadedFiles[] = $tmpArr;
-        }
+        $uploadedFiles = $this->mediaHelper->storeAll($mediaDirectory, $files);
 
         return $this->json(['message' => 'uploaded files', 'files' => $uploadedFiles]);
     }
 
-    // /api/admin/entry/media/load
+    // /api/admin/gallery/load
     public function loadMediaForEntry(): string
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
         }
-
-        $media = [];
-        foreach ($this->mediaHelpers as $slug => $helper) {
-            $media[] = [
-                'name' => $helper::getName(),
-                'slug' => $slug,
-                'media' => EntryMediaLoader::run($_REQUEST['entry'], $helper),
-            ];
+        if (!key_exists('gallery', $_REQUEST)) {
+            return $this->json(['message' => 'Please define the target Gallery'], 400);
         }
+
+        $gallery = $_REQUEST['gallery'];
+        $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
+
+        $media = $this->mediaHelper->loadMedia($mediaDirectory);
 
         return $this->json(["media" => $media]);
     }
 
-    // /api/admin/entry/media/delete
+    // /api/admin/media/delete
     public function deleteMedia(Request $request): string
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
         }
-
-        $img = $request->getBody()['media'];
-
-        $media = MediaFactory::run($img, $this->mediaHelpers);
-        $delete = [];
-        foreach ($this->mediaHelpers as $helper) {
-            $delete[] = $helper->deleteMedia($media);
+        if (!key_exists('media', $_REQUEST)) {
+            return $this->json(['message' => 'Please define the media to delete'], 400);
         }
+
+        $media = $request->getBody()['media'];
+
+        $delete = $this->mediaHelper->delete($media);
 
         return $this->json($delete);
-    }
-
-    private function getMediaHelper(Mime $mime): MediaProcessor
-    {
-        foreach ($this->mediaHelpers as $mediaHelper) {
-            $testMime = Mime::init($mediaHelper::getMimeType());
-            if (MimeHelper::compareMimeTypes($testMime, $mime)) {
-                return $mediaHelper;
-            }
-        }
-
-        throw new \Exception('The Mime Type ' . $mime->printMime() . ' is not supported');
     }
 }

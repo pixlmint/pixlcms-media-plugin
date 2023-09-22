@@ -4,10 +4,10 @@ namespace PixlMint\Media\Helpers;
 
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Models\Media;
-use PixlMint\Media\Models\MediaDirectory;
+use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\ScaledMedia;
 
-class ImageMediaType extends AbstractMediaHelper implements MediaProcessor
+class ImageMediaType extends AbstractMediaTypeHelper implements MediaProcessor
 {
     public static function getDefaultSizes(): array
     {
@@ -47,12 +47,12 @@ class ImageMediaType extends AbstractMediaHelper implements MediaProcessor
     /**
      * @return array|Media[]
      */
-    public function loadMedia(MediaDirectory $directory): array
+    public function loadMedia(MediaGalleryDirectory $directory): array
     {
         return parent::loadMedia($directory);
     }
 
-    public function storeMedia(array $file, MediaDirectory $directory): Media
+    public function storeMedia(array $file, MediaGalleryDirectory $directory): Media
     {
         $media = new Media(self::generateFileName($file), $directory);
 
