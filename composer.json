@@ -1,0 +1,14 @@
+{
+  "name": "pixlmint/pixlcms-media-plugin",
+  "description": "A simple Media plugin for PixlCMS",
+  "require": {
+    "ext-json":  "*",
+    "PixlMint/pixl-cms": "*",
+    "mhor/php-mediainfo": "^5.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "PixlMint\\Media\\": "src/"
+    }
+  }
+}
