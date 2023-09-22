@@ -56,7 +56,8 @@ abstract class AbstractMediaTypeHelper
                 continue;
             }
             if ($this->isApplicableMediaMime("${mediaDir}/${dir}/${file}")) {
-                $media[] = MediaFactory::run("${mediaDir}/${dir}/${file}", [$this]);
+                $directory = MediaGalleryDirectory::fromPath($dir);
+                $media[] = MediaFactory::run($directory, $file, [$this]);
             }
         }
 

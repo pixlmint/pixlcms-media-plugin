@@ -64,7 +64,10 @@ class MediaHelper
 
     public function delete(string $media): array
     {
-        $mediaToDelete = MediaFactory::run($media, $this->mediaHelpers);
+        $splPath = explode('/', $media);
+        $filename = array_pop($splPath);
+        $directory = MediaGalleryDirectory::fromPath(implode('/', $splPath));
+        $mediaToDelete = MediaFactory::run($directory, $filename, $this->mediaHelpers);
         $delete = [];
         foreach ($this->mediaHelpers as $helper) {
             $delete[] = $helper->deleteMedia($mediaToDelete);
