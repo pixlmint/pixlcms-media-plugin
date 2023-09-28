@@ -52,7 +52,9 @@ class MediaController extends AbstractController
         $gallery = $_REQUEST['gallery'];
         $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
 
-        $media = $this->mediaHelper->loadMedia($mediaDirectory);
+        $media = array_map(function ($m) {
+            return $m->toArray();
+        }, $this->mediaHelper->loadMedia($mediaDirectory));
 
         return $this->json(["media" => $media]);
     }
