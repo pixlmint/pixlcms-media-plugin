@@ -30,7 +30,7 @@ class EntryMediaLoader
     }
 
     /**
-     * @return array|Media[]
+     * @return array
      */
     public function loadMedia(): array
     {

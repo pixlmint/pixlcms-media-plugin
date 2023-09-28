@@ -6,6 +6,7 @@ use Nacho\Nacho;
 use PixlMint\CMS\Helpers\CMSConfiguration;
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Models\MediaGalleryDirectory;
+use PixlMint\Media\Models\MediaList;
 use PixlMint\Media\Models\Mime;
 
 class MediaHelper
@@ -48,18 +49,19 @@ class MediaHelper
         return $uploadedFiles;
     }
 
+    /**
+     * @return array|MediaList[]
+     */
     public function loadMedia(MediaGalleryDirectory $directory): array
     {
-        $media = [];
+        $ret = [];
         foreach ($this->mediaHelpers as $slug => $helper) {
-            $media[] = [
-                'name' => $helper::getName(),
-                'slug' => $slug,
-                'media' => EntryMediaLoader::run($directory, $helper),
-            ];
+            $mediaArray = $helper->loadMedia($directory);
+            $mediaList = new MediaList($helper::getName(), $slug, $helper->getDefaultScaled());
+            $mediaList->setMedias($mediaArray);
+            $ret[] = $mediaList;
         }
-
-        return $media;
+        return $ret;
     }
 
     public function delete(string $media): array
