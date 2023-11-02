@@ -25,13 +25,22 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
 
     public static function init(TemporaryModel $data, int $id): ModelInterface
     {
-        $scaled = array_map(function(array $scale) {
+        $scaled = array_map(function (array $scale) {
             return new ScaledMedia($scale->get('scaleName'), $scale->get('fileExtension'));
         }, $data->get('scaled'));
 
         $mediaDirectory = new MediaGalleryDirectory($data->get('month'), $data->get('day'));
 
         return new Media($data->get('name'), $mediaDirectory, $scaled);
+    }
+
+    public function getMime(): ?Mime
+    {
+        $mime = mime_content_type($this->getAbsolutePath());
+        if ($mime) {
+            return Mime::init($mime);
+        }
+        return null;
     }
 
     public function getName(): string
@@ -108,7 +117,9 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
         return [
             'directory' => $this->directory->getRelativePath(),
             'name' => $this->name,
-            'scaled' => array_map(function (ScaledMedia $s) {return $s->toArray();}, $this->scaled),
+            'scaled' => array_map(function (ScaledMedia $s) {
+                return $s->toArray();
+            }, $this->scaled),
         ];
     }
 
