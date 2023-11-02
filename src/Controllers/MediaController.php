@@ -2,6 +2,7 @@
 
 namespace PixlMint\Media\Controllers;
 
+use Nacho\Models\HttpResponse;
 use Nacho\Nacho;
 use PixlMint\Media\Helpers\MediaHelper;
 use PixlMint\Media\Models\MediaGalleryDirectory;
@@ -22,7 +23,7 @@ class MediaController extends AbstractController
     /**
      * GET: /api/admin/gallery/upload
      */
-    public function uploadMedia(): string
+    public function uploadMedia(): HttpResponse
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
@@ -40,7 +41,7 @@ class MediaController extends AbstractController
     }
 
     // /api/admin/gallery/load
-    public function loadMediaForEntry(): string
+    public function loadMediaForEntry(): HttpResponse
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
@@ -60,7 +61,7 @@ class MediaController extends AbstractController
     }
 
     // /api/admin/media/delete
-    public function deleteMedia(Request $request): string
+    public function deleteMedia(Request $request): HttpResponse
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
