@@ -16,7 +16,7 @@ class MediaHelper
 
     private string $mediaDir;
 
-    public function __construct(Nacho $nacho)
+    public function __construct()
     {
         $this->mediaHelpers['img'] = new ImageMediaType();
         $this->mediaHelpers['vid'] = new VideoMediaType();
@@ -77,7 +77,7 @@ class MediaHelper
         return $delete;
     }
 
-    private function getMediaHelper(Mime $mime): MediaProcessor
+    public function getMediaHelper(Mime $mime): MediaProcessor
     {
         foreach ($this->mediaHelpers as $mediaHelper) {
             $testMime = Mime::init($mediaHelper::getMimeType());

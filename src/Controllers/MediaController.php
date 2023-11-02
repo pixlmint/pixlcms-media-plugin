@@ -16,7 +16,7 @@ class MediaController extends AbstractController
 
     public function __construct(Nacho $nacho)
     {
-        $this->mediaHelper = new MediaHelper($nacho);
+        $this->mediaHelper = new MediaHelper();
         parent::__construct($nacho);
     }
 
