@@ -16,11 +16,11 @@ class MediaHelper
 
     private string $mediaDir;
 
-    public function __construct()
+    public function __construct(ImageMediaType $imageMediaType, VideoMediaType $videoMediaType, CMSConfiguration $cmsConfiguration)
     {
-        $this->mediaHelpers['img'] = new ImageMediaType();
-        $this->mediaHelpers['vid'] = new VideoMediaType();
-        $this->mediaDir = CMSConfiguration::mediaDir();
+        $this->mediaHelpers['img'] = $imageMediaType;
+        $this->mediaHelpers['vid'] = $videoMediaType;
+        $this->mediaDir = $cmsConfiguration->mediaDir();
     }
 
     public function store(MediaGalleryDirectory $directory, array $file): array

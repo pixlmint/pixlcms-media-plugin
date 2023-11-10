@@ -5,8 +5,7 @@ namespace PixlMint\Media\Helpers;
 use Mhor\MediaInfo\Container\MediaInfoContainer;
 use Mhor\MediaInfo\MediaInfo;
 use Mhor\MediaInfo\Type\Video;
-use Nacho\ORM\RepositoryInterface;
-use Nacho\ORM\RepositoryManager;
+use PixlMint\CMS\Helpers\CMSConfiguration;
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Models\EncodingJob;
 use PixlMint\Media\Models\Media;
@@ -20,6 +19,13 @@ class VideoMediaType extends AbstractMediaTypeHelper implements MediaProcessor
     const DEFAULT_HEIGHT = 720;
     const DEFAULT_FPS = 30;
     const ENCODED_DIR = 'encode';
+    private EncodingJobRepository $encodingJobRepository;
+
+    public function __construct(CMSConfiguration $cmsConfiguration, EncodingJobRepository $encodingJobRepository)
+    {
+        parent::__construct($cmsConfiguration);
+        $this->encodingJobRepository = $encodingJobRepository;
+    }
 
     public static function getDefaultSizes(): array
     {
@@ -72,7 +78,7 @@ class VideoMediaType extends AbstractMediaTypeHelper implements MediaProcessor
     {
         $encode = $this->getEncoderSettings($media);
 
-        self::getEncoderQueueRepository()->set($encode);
+        $this->encodingJobRepository->set($encode);
 
         return [self::ENCODED_DIR => $media->getMediaPath(self::ENCODED_DIR)];
     }
@@ -111,11 +117,6 @@ class VideoMediaType extends AbstractMediaTypeHelper implements MediaProcessor
         }
 
         return null;
-    }
-
-    private static function getEncoderQueueRepository(): EncodingJobRepository|RepositoryInterface
-    {
-        return RepositoryManager::getInstance()->getRepository(EncodingJobRepository::class);
     }
 
     public function deleteMedia(Media $media, bool $dryRun = false): bool|array

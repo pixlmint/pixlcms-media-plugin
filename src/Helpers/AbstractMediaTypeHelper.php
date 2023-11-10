@@ -10,6 +10,13 @@ use PixlMint\CMS\Helpers\CMSConfiguration;
 
 abstract class AbstractMediaTypeHelper
 {
+    private CMSConfiguration $cmsConfiguration;
+
+    public function __construct(CMSConfiguration $cmsConfiguration)
+    {
+        $this->cmsConfiguration = $cmsConfiguration;
+    }
+
     public function deleteMedia(Media $media, bool $dryRun = false): bool|array
     {
         $files = $this->getFilesToDelete($media);
@@ -45,7 +52,7 @@ abstract class AbstractMediaTypeHelper
 
     public function loadMedia(MediaGalleryDirectory $directory): array
     {
-        $mediaDir = CMSConfiguration::mediaDir();
+        $mediaDir = $this->cmsConfiguration->mediaDir();
         $media = [];
         $dir = $directory->getRelativePath();
         if (!is_dir("${mediaDir}/${dir}")) {
@@ -64,7 +71,7 @@ abstract class AbstractMediaTypeHelper
         return $media;
     }
 
-    public static function generateFileName(array $file)
+    public static function generateFileName(array $file): string
     {
         return sha1_file($file['tmp_name']) . $file['name'];
     }

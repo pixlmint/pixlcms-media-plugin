@@ -2,22 +2,21 @@
 
 namespace PixlMint\Media\Controllers;
 
+use Nacho\Contracts\RequestInterface;
 use Nacho\Models\HttpResponse;
-use Nacho\Nacho;
 use PixlMint\Media\Helpers\MediaHelper;
 use PixlMint\Media\Models\MediaGalleryDirectory;
 use Nacho\Controllers\AbstractController;
-use Nacho\Models\Request;
 use PixlMint\CMS\Helpers\CustomUserHelper;
 
 class MediaController extends AbstractController
 {
     private MediaHelper $mediaHelper;
 
-    public function __construct(Nacho $nacho)
+    public function __construct(MediaHelper $mediaHelper)
     {
-        $this->mediaHelper = new MediaHelper();
-        parent::__construct($nacho);
+        parent::__construct();
+        $this->mediaHelper = $mediaHelper;
     }
 
     /**
@@ -61,7 +60,7 @@ class MediaController extends AbstractController
     }
 
     // /api/admin/media/delete
-    public function deleteMedia(Request $request): HttpResponse
+    public function deleteMedia(RequestInterface $request): HttpResponse
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
