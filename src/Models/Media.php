@@ -3,6 +3,7 @@
 namespace PixlMint\Media\Models;
 
 use Nacho\Contracts\ArrayableInterface;
+use Nacho\Nacho;
 use Nacho\ORM\AbstractModel;
 use Nacho\ORM\ModelInterface;
 use Nacho\ORM\TemporaryModel;
@@ -74,7 +75,7 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
      */
     public function getMediaPath(?string $size = null): string
     {
-        $baseDir = [CMSConfiguration::mediaBaseUrl(), $this->directory->getRelativePath()];
+        $baseDir = [$this->getMediaBaseUrl(), $this->directory->getRelativePath()];
         if ($size) {
             $baseDir[] = $size;
             $baseDir[] = $this->name . '.' . $this->getScaled($size)->getFileExtension();
@@ -97,7 +98,7 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
      */
     public function getDirectory(?string $size = null): string
     {
-        $baseDir = [CMSConfiguration::mediaBaseUrl(), $this->directory->getRelativePath()];
+        $baseDir = [$this->getMediaBaseUrl(), $this->directory->getRelativePath()];
         if ($size) {
             $baseDir[] = $size;
         }
@@ -133,5 +134,10 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
             'path' => $this->getMediaPath(),
             'scaled' => $scaledArray,
         ];
+    }
+
+    private function getMediaBaseUrl(): string
+    {
+        return Nacho::$container->get(CMSConfiguration::class)->mediaBaseUrl();
     }
 }
