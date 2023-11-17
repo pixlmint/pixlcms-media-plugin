@@ -6,7 +6,7 @@ use PixlMint\Media\Models\EncodingJob;
 use Nacho\ORM\AbstractRepository;
 use Nacho\ORM\RepositoryInterface;
 
-class EncodingJobRepository extends AbstractRepository implements RepositoryInterface
+class EncodingJobRepository extends AbstractRepository
 {
     public static function getDataName(): string
     {
