@@ -40,7 +40,6 @@ class MediaHelper
 
     public function storeAll(MediaGalleryDirectory $directory, array $files): array
     {
-
         $uploadedFiles = [];
         foreach ($files as $file) {
             $uploadedFiles[] = $this->store($directory, $file);

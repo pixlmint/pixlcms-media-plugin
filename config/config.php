@@ -10,6 +10,11 @@ return [
             'function' => 'uploadMedia',
         ],
         [
+            'route' => '/api/admin/gallery/upload-b64',
+            'controller' => MediaController::class,
+            'function' => 'uploadBase64',
+        ],
+        [
             'route' => '/api/admin/gallery/load',
             'controller' => MediaController::class,
             'function' => 'loadMediaForEntry',

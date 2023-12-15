@@ -39,6 +39,40 @@ class MediaController extends AbstractController
         return $this->json(['message' => 'uploaded files', 'files' => $uploadedFiles]);
     }
 
+    /**
+     * POST: /api/admin/gallery/upload-b64
+     */
+    public function uploadBase64(RequestInterface $request): HttpResponse
+    {
+        if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
+            return $this->json(['message' => 'You are not authenticated'], 401);
+        }
+        if (!key_exists('gallery', $request->getBody()) || !key_exists('data', $request->getBody())) {
+            return $this->json(['message' => 'Please define the target Gallery and the data'], 400);
+        }
+
+        $gallery = $request->getBody()['gallery'];
+        $imageB64 = $request->getBody()['data'];
+        $re = '/^data:(?<mime>[a-z]+\/[a-z]+);base64,(?<data>.*)/m';
+        preg_match($re, $imageB64, $matches);
+        $mime = $matches['mime'];
+        $imageData = base64_decode($matches['data']);
+        $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
+
+        $filename = time() . '.jpg';
+
+        $img = imagecreatefromstring($imageData);
+        imagejpeg($img, '/tmp/' . $filename, 0);
+
+        $storedImage = $this->mediaHelper->store($mediaDirectory, [
+            'tmp_name' => '/tmp/' . $filename,
+            'name' => $filename,
+            'type' => $mime,
+        ]);
+
+        return $this->json($storedImage);
+    }
+
     // /api/admin/gallery/load
     public function loadMediaForEntry(): HttpResponse
     {
