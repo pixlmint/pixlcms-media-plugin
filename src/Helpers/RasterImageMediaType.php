@@ -3,20 +3,16 @@
 namespace PixlMint\Media\Helpers;
 
 use PixlMint\Media\Contracts\MediaProcessor;
+use PixlMint\Media\Contracts\ScalableMediaProcessor;
 use PixlMint\Media\Models\Media;
 use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\ScaledMedia;
 
-class ImageMediaType extends AbstractMediaTypeHelper implements MediaProcessor
+class RasterImageMediaType extends AbstractMediaTypeHelper implements MediaProcessor, ScalableMediaProcessor
 {
     public static function getDefaultSizes(): array
     {
         return [100, 500, 1080];
-    }
-
-    public static function getMimeType(): string
-    {
-        return 'image/*';
     }
 
     public static function getName(): string

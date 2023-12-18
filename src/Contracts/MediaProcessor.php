@@ -13,12 +13,6 @@ interface MediaProcessor
 
     public static function getApplicableExtensions(): array;
 
-    public static function getDefaultSizes(): array;
-
-    public static function getScaledExtension(): string;
-
-    public function getDefaultScaled(): string;
-
     public function deleteMedia(Media $media, bool $dryRun): bool|array;
 
     public function storeMedia(array $file, MediaGalleryDirectory $directory): Media;

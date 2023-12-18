@@ -22,7 +22,7 @@ class MediaController extends AbstractController
     /**
      * GET: /api/admin/gallery/upload
      */
-    public function uploadMedia(): HttpResponse
+    public function uploadMedia(RequestInterface $request): HttpResponse
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
@@ -32,7 +32,21 @@ class MediaController extends AbstractController
         }
         $gallery = $_REQUEST['gallery'];
         $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
-        $files = $_FILES;
+        if ($_FILES) {
+            $files = $_FILES;
+        } elseif (key_exists('files', $request->getBody())) {
+            $files = array_map(function ($f) {
+                $tmp_path = '/tmp/' . md5($f['data']);
+                file_put_contents($tmp_path, $f['data']);
+                return [
+                    'tmp_name' => $tmp_path,
+                    'name' => $f['name'],
+                    'type' => $f['type'],
+                ];
+            }, $request->getBody()['files']);
+        } else {
+            return $this->json(['message' => 'No files posted'], 400);
+        }
 
         $uploadedFiles = $this->mediaHelper->storeAll($mediaDirectory, $files);
 

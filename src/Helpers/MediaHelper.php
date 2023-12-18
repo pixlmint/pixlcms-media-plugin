@@ -5,6 +5,7 @@ namespace PixlMint\Media\Helpers;
 use Nacho\Nacho;
 use PixlMint\CMS\Helpers\CMSConfiguration;
 use PixlMint\Media\Contracts\MediaProcessor;
+use PixlMint\Media\Contracts\ScalableMediaProcessor;
 use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\MediaList;
 use PixlMint\Media\Models\Mime;
@@ -16,10 +17,11 @@ class MediaHelper
 
     private string $mediaDir;
 
-    public function __construct(ImageMediaType $imageMediaType, VideoMediaType $videoMediaType, CMSConfiguration $cmsConfiguration)
+    public function __construct(JpegMediaType $jpegMediaType, VideoMediaType $videoMediaType, SvgMediaType $svgMediaType, CMSConfiguration $cmsConfiguration)
     {
-        $this->mediaHelpers['img'] = $imageMediaType;
+        $this->mediaHelpers['img'] = $jpegMediaType;
         $this->mediaHelpers['vid'] = $videoMediaType;
+        $this->mediaHelpers['svg'] = $svgMediaType;
         $this->mediaDir = $cmsConfiguration->mediaDir();
     }
 
@@ -33,7 +35,9 @@ class MediaHelper
         $helper = $this->getMediaHelper(Mime::init($file['type']));
         $media = $helper->storeMedia($file, $directory);
         $tmpArr = $media->toFrontendArray();
-        $tmpArr['scaled']['default'] = $media->getMediaPath($helper->getDefaultScaled());
+        if ($helper instanceof ScalableMediaProcessor) {
+            $tmpArr['scaled']['default'] = $media->getMediaPath($helper->getDefaultScaled());
+        }
 
         return $tmpArr;
     }
@@ -56,7 +60,7 @@ class MediaHelper
         $ret = [];
         foreach ($this->mediaHelpers as $slug => $helper) {
             $mediaArray = $helper->loadMedia($directory);
-            $mediaList = new MediaList($helper::getName(), $slug, $helper->getDefaultScaled());
+            $mediaList = new MediaList($helper::getName(), $slug, $helper instanceof ScalableMediaProcessor ? $helper->getDefaultScaled() : '');
             $mediaList->setMedias($mediaArray);
             $ret[] = $mediaList;
         }
