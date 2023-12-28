@@ -32,7 +32,7 @@ class MediaHelper
             mkdir($targetDirectory, 0777, true);
         }
 
-        $helper = $this->getMediaHelper(Mime::init($file['type']));
+        $helper = $this->getMediaHelper($file['name']);
         $media = $helper->storeMedia($file, $directory);
         $tmpArr = $media->toFrontendArray();
         if ($helper instanceof ScalableMediaProcessor) {
@@ -80,15 +80,16 @@ class MediaHelper
         return $delete;
     }
 
-    public function getMediaHelper(Mime $mime): MediaProcessor
+    public function getMediaHelper(string $fileName): MediaProcessor
     {
-        foreach ($this->mediaHelpers as $mediaHelper) {
-            $testMime = Mime::init($mediaHelper::getMimeType());
-            if (MimeHelper::compareMimeTypes($testMime, $mime)) {
-                return $mediaHelper;
+        foreach ($this->mediaHelpers as $processor) {
+            foreach ($processor::getApplicableExtensions() as $ext) {
+                if (FileNameHelper::extensionMatches($fileName, $processor::getApplicableExtensions())) {
+                    return $processor;
+                }
             }
         }
 
-        throw new \Exception(sprintf('The Mime Type %s is not supported', $mime->printMime()));
+        throw new \Exception(sprintf('No applicable MediaProcessor found for file %s', $fileName));
     }
 }

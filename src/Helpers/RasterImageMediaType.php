@@ -2,10 +2,12 @@
 
 namespace PixlMint\Media\Helpers;
 
+use GdImage;
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Contracts\ScalableMediaProcessor;
 use PixlMint\Media\Models\Media;
 use PixlMint\Media\Models\MediaGalleryDirectory;
+use PixlMint\Media\Models\Mime;
 use PixlMint\Media\Models\ScaledMedia;
 
 class RasterImageMediaType extends AbstractMediaTypeHelper implements MediaProcessor, ScalableMediaProcessor
@@ -62,8 +64,8 @@ class RasterImageMediaType extends AbstractMediaTypeHelper implements MediaProce
     protected function outputFile(string $mediaPath, Media $media)
     {
         // Rotate Image
-        $image = imagecreatefromjpeg($mediaPath);
-        $exif = exif_read_data($mediaPath);
+        $image = $this->getImageFromPath($mediaPath);
+        $exif = self::readExif($mediaPath);
         if (!empty($exif['Orientation'])) {
             switch ($exif['Orientation']) {
                 case 8:
@@ -80,6 +82,31 @@ class RasterImageMediaType extends AbstractMediaTypeHelper implements MediaProce
 
         // Save rotated image
         imagewebp($image, $media->getAbsolutePath());
+    }
+
+    private static function readExif(string $filePath): array
+    {
+        $errorReporting = error_reporting();
+        error_reporting(E_ERROR | E_PARSE);
+        $exif = exif_read_data($filePath);
+        error_reporting($errorReporting);
+        if (!$exif) {
+            $exif = [
+                'MimeType' => Mime::init(mime_content_type($filePath))->getType(),
+            ];
+        }
+
+        return $exif;
+    }
+
+    private function getImageFromPath(string $mediaPath): bool|GdImage
+    {
+        $mime = Mime::init(mime_content_type($mediaPath));
+        return match ($mime->getContainer()) {
+            'jpeg', 'jpg' => imagecreatefromjpeg($mediaPath),
+            'png' => imagecreatefrompng($mediaPath),
+            default => false,
+        };
     }
 
     protected function scale(Media $media): Media
