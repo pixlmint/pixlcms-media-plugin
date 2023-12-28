@@ -17,7 +17,7 @@ class MediaHelper
 
     private string $mediaDir;
 
-    public function __construct(JpegMediaType $jpegMediaType, VideoMediaType $videoMediaType, SvgMediaType $svgMediaType, CMSConfiguration $cmsConfiguration)
+    public function __construct(WebpMediaType $jpegMediaType, VideoMediaType $videoMediaType, SvgMediaType $svgMediaType, CMSConfiguration $cmsConfiguration)
     {
         $this->mediaHelpers['img'] = $jpegMediaType;
         $this->mediaHelpers['vid'] = $videoMediaType;

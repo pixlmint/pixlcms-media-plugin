@@ -2,10 +2,10 @@
 
 namespace PixlMint\Media\Helpers;
 
-class JpegMediaType extends RasterImageMediaType
+class WebpMediaType extends RasterImageMediaType
 {
     public static function getMimeType(): string
     {
-        return "image/jpeg";
+        return "image/webp";
     }
 }

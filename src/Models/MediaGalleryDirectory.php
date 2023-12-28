@@ -19,16 +19,6 @@ class MediaGalleryDirectory
         return new self($splPath);
     }
 
-    public function getMonth(): string
-    {
-        return $this->month;
-    }
-
-    public function getDay(): string
-    {
-        return $this->day;
-    }
-
     /**
      * Returns the relative Path of the media directory WITHOUT leading slash
      */
