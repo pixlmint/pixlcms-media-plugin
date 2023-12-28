@@ -25,7 +25,7 @@ class MediaRepository extends AbstractRepository implements RepositoryInterface
             }
         }
 
-        throw new \Exception("Unable to find media from day ${day}");
+        throw new \Exception("Unable to find media from day {$day}");
     }
 
     protected static function getModel(): string

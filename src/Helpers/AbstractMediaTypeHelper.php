@@ -55,14 +55,14 @@ abstract class AbstractMediaTypeHelper
         $mediaDir = $this->cmsConfiguration->mediaDir();
         $media = [];
         $dir = $directory->getRelativePath();
-        if (!is_dir("${mediaDir}/${dir}")) {
+        if (!is_dir("{$mediaDir}/{$dir}")) {
             return $media;
         }
-        foreach (scandir("${mediaDir}/${dir}") as $file) {
-            if ($file === '.' || $file === '..' || is_dir("${mediaDir}/${dir}/${file}")) {
+        foreach (scandir("{$mediaDir}/{$dir}") as $file) {
+            if ($file === '.' || $file === '..' || is_dir("{$mediaDir}/{$dir}/{$file}")) {
                 continue;
             }
-            if ($this->isApplicableMediaMime("${mediaDir}/${dir}/${file}")) {
+            if ($this->isApplicableMediaMime("{$mediaDir}/{$dir}/{$file}")) {
                 $directory = MediaGalleryDirectory::fromPath($dir);
                 $media[] = MediaFactory::run($directory, $file, [$this]);
             }
