@@ -34,7 +34,7 @@ class MediaController extends AbstractController
         $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
         if ($_FILES) {
             $files = $_FILES;
-        } elseif (key_exists('files', $request->getBody())) {
+        } elseif ($request->getBody()->has('files')) {
             $files = array_map(function ($f) {
                 $tmp_path = '/tmp/' . md5($f['data']);
                 file_put_contents($tmp_path, $f['data']);
@@ -43,7 +43,7 @@ class MediaController extends AbstractController
                     'name' => $f['name'],
                     'type' => $f['type'],
                 ];
-            }, $request->getBody()['files']);
+            }, $request->getBody()->get('files'));
         } else {
             return $this->json(['message' => 'No files posted'], 400);
         }
@@ -61,12 +61,12 @@ class MediaController extends AbstractController
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
         }
-        if (!key_exists('gallery', $request->getBody()) || !key_exists('data', $request->getBody())) {
+        if (!$request->getBody()->has('gallery') || !$request->getBody()->has('data')) {
             return $this->json(['message' => 'Please define the target Gallery and the data'], 400);
         }
 
-        $gallery = $request->getBody()['gallery'];
-        $imageB64 = $request->getBody()['data'];
+        $gallery = $request->getBody()->get('gallery');
+        $imageB64 = $request->getBody()->get('data');
         $re = '/^data:(?<mime>[a-z]+\/[a-z]+);base64,(?<data>.*)/m';
         preg_match($re, $imageB64, $matches);
         $mime = $matches['mime'];
