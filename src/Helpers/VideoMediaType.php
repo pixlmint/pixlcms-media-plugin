@@ -74,6 +74,15 @@ class VideoMediaType extends AbstractMediaTypeHelper implements MediaProcessor
         return $media;
     }
 
+    public function updateMedia(array $file, Media $media): void
+    {
+        $media->addScaled(new ScaledMedia(self::ENCODED_DIR, 'webm'));
+
+        move_uploaded_file($file['tmp_name'], $media->getAbsolutePath());
+
+        $this->scale($media);
+    }
+
     protected function scale(Media $media): array
     {
         $encode = $this->getEncoderSettings($media);

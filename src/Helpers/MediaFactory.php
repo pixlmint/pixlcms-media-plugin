@@ -3,6 +3,7 @@
 namespace PixlMint\Media\Helpers;
 
 use PixlMint\Media\Contracts\MediaProcessor;
+use PixlMint\Media\Contracts\ScalableMediaProcessor;
 use PixlMint\Media\Models\Media;
 use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\ScaledMedia;
@@ -31,7 +32,11 @@ class MediaFactory
     {
         $processor = $this->getMediaHelper();
 
-        $scaled = $this->getScaled($processor);
+        if ($processor instanceof ScalableMediaProcessor) {
+            $scaled = $this->getScaled($processor);
+        } else {
+            $scaled = [];
+        }
 
         return new Media($this->name, $this->directory, $scaled);
     }

@@ -50,6 +50,9 @@ abstract class AbstractMediaTypeHelper
         return $ret;
     }
 
+    /**
+     * @return array|Media[]
+     */
     public function loadMedia(MediaGalleryDirectory $directory): array
     {
         $mediaDir = $this->cmsConfiguration->mediaDir();

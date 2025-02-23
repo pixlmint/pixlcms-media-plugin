@@ -14,6 +14,7 @@ class MediaGalleryDirectory
     public static function fromPath(string $galleryPath)
     {
         $galleryPath = ltrim($galleryPath, '/');
+        $galleryPath = ltrim($galleryPath, "media/");
         $splPath = explode('/', $galleryPath);
 
         return new self($splPath);

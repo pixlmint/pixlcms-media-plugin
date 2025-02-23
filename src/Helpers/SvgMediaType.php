@@ -26,9 +26,15 @@ class SvgMediaType extends AbstractMediaTypeHelper implements MediaProcessor
     public function storeMedia(array $file, MediaGalleryDirectory $directory): Media
     {
         $media = new Media(self::generateFileName($file), $directory);
+        // print("storing to " . $media->getAbsolutePath());
 
         file_put_contents($media->getAbsolutePath(), file_get_contents($file['tmp_name']));
 
         return $media;
+    }
+
+    public function updateMedia(array $file, Media $media): void
+    {
+        file_put_contents($media->getAbsolutePath(), file_get_contents($file['tmp_name']));
     }
 }

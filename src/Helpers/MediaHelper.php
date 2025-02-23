@@ -2,13 +2,12 @@
 
 namespace PixlMint\Media\Helpers;
 
-use Nacho\Nacho;
 use PixlMint\CMS\Helpers\CMSConfiguration;
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Contracts\ScalableMediaProcessor;
+use PixlMint\Media\Models\Media;
 use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\MediaList;
-use PixlMint\Media\Models\Mime;
 
 class MediaHelper
 {
@@ -52,6 +51,12 @@ class MediaHelper
         return $uploadedFiles;
     }
 
+    public function updateMedia(Media $media, array $file): void
+    {
+        $helper = $this->getMediaHelper($file['name']);
+        $helper->updateMedia($file, $media);
+    }
+
     /**
      * @return array|MediaList[]
      */
@@ -65,6 +70,35 @@ class MediaHelper
             $ret[] = $mediaList;
         }
         return $ret;
+    }
+
+    public function findMedia(string $path): ?Media
+    {
+        $pathinfo = pathinfo($path);
+        $dirname = $pathinfo['dirname'];
+        $extension = $pathinfo['extension'];
+        $basename = $pathinfo['basename'];
+
+        $mediaDirectory = MediaGalleryDirectory::fromPath($dirname);
+
+        $extensionFound = false;
+        foreach ($this->mediaHelpers as $helper) {
+            /** @var MediaProcessor $helper */
+            if (in_array($extension, $helper->getApplicableExtensions())) {
+                $extensionFound = true;
+                foreach ($helper->loadMedia($mediaDirectory) as $media) {
+                    /** @var Media $media */
+                    if ($media->getName() === $basename) {
+                        return $media;
+                    }
+                }
+            }
+        }
+        if (!$extensionFound) {
+            throw new \Exception("Unable to match extesion $extension");
+        }
+
+        return null;
     }
 
     public function delete(string $media): array

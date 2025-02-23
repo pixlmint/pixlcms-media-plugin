@@ -20,17 +20,17 @@ class MediaController extends AbstractController
     }
 
     /**
-     * GET: /api/admin/gallery/upload
+     * POST: /api/admin/gallery/upload
      */
     public function uploadMedia(RequestInterface $request): HttpResponse
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
         }
-        if (!key_exists('gallery', $_REQUEST)) {
+        if (!$request->getBody()->has('gallery')) {
             return $this->json(['message' => 'Please define the target Gallery'], 400);
         }
-        $gallery = $_REQUEST['gallery'];
+        $gallery = $request->getBody()->get('gallery');
         $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
         if ($_FILES) {
             $files = $_FILES;
@@ -51,6 +51,43 @@ class MediaController extends AbstractController
         $uploadedFiles = $this->mediaHelper->storeAll($mediaDirectory, $files);
 
         return $this->json(['message' => 'uploaded files', 'files' => $uploadedFiles]);
+    }
+
+    /**
+     * PUT:  /api/admin/gallery/media/replace
+     */
+    public function replaceMedia(RequestInterface $request): HttpResponse
+    {
+        if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
+            return $this->json(['message' => 'You are not authenticated'], 401);
+        }
+        if (!$request->getBody()->has('media')) {
+            return $this->json(['message' => 'Media to replace needs to be defined'], 400);
+        }
+        $existingMedia = $request->getBody()->get('media');
+        $media = $this->mediaHelper->findMedia($existingMedia);
+        if (is_null($media)) {
+            return $this->json(["message" => "Unable to find media $existingMedia"], 404);
+        }
+        if ($_FILES) {
+            $files = $_FILES;
+        } elseif ($request->getBody()->has('files')) {
+            $files = array_map(function ($f) {
+                $tmp_path = '/tmp/' . md5($f['data']);
+                file_put_contents($tmp_path, $f['data']);
+                return [
+                    'tmp_name' => $tmp_path,
+                    'name' => $f['name'],
+                    'type' => $f['type'],
+                ];
+            }, $request->getBody()->get('files'));
+        } else {
+            return $this->json(['message' => 'No files posted'], 400);
+        }
+
+        $this->mediaHelper->updateMedia($media, array_pop($files));
+
+        return $this->json(['message' => 'updated file']);
     }
 
     /**
@@ -88,16 +125,19 @@ class MediaController extends AbstractController
     }
 
     // /api/admin/gallery/load
-    public function loadMediaForEntry(): HttpResponse
+    public function loadMediaForEntry(RequestInterface $request): HttpResponse
     {
         if (!$this->isGranted(CustomUserHelper::ROLE_EDITOR)) {
             return $this->json(['message' => 'You are not authenticated'], 401);
         }
-        if (!key_exists('gallery', $_REQUEST)) {
+        if (!$request->getBody()->has('gallery')) {
             return $this->json(['message' => 'Please define the target Gallery'], 400);
         }
 
-        $gallery = $_REQUEST['gallery'];
+        $gallery = $request->getBody()->get('gallery');
+        if (!str_starts_with($gallery, '/')) {
+            $gallery = '/' . $gallery;
+        }
         $mediaDirectory = MediaGalleryDirectory::fromPath($gallery);
 
         $media = array_map(function ($m) {

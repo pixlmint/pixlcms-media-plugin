@@ -10,6 +10,11 @@ return [
             'function' => 'uploadMedia',
         ],
         [
+            'route' => '/api/admin/gallery/media/replace',
+            'controller' => MediaController::class,
+            'function' => 'replaceMedia',
+        ],
+        [
             'route' => '/api/admin/gallery/upload-b64',
             'controller' => MediaController::class,
             'function' => 'uploadBase64',

@@ -26,7 +26,7 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
 
     public static function init(TemporaryModel $data, int $id): ModelInterface
     {
-        $scaled = array_map(function (array $scale) {
+        $scaled = array_map(function (mixed $scale) {
             return new ScaledMedia($scale->get('scaleName'), $scale->get('fileExtension'));
         }, $data->get('scaled'));
 

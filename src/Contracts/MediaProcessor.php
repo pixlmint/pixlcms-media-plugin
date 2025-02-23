@@ -17,5 +17,7 @@ interface MediaProcessor
 
     public function storeMedia(array $file, MediaGalleryDirectory $directory): Media;
 
+    public function updateMedia(array $file, Media $media): void;
+
     public function loadMedia(MediaGalleryDirectory $directory): array;
 }

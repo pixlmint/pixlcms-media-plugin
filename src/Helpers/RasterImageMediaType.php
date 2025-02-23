@@ -61,6 +61,15 @@ class RasterImageMediaType extends AbstractMediaTypeHelper implements MediaProce
         return $media;
     }
 
+    public function updateMedia(array $file, Media $media): void
+    {
+        $this->outputFile($file['tmp_name'], $media);
+        $this->scale($media);
+    }
+
+    /**
+     * Save the uploaded image as webp in the correct orientation to disk
+     */
     protected function outputFile(string $mediaPath, Media $media)
     {
         // Rotate Image
