@@ -1,6 +1,7 @@
 <?php
 
 use PixlMint\Media\Controllers\MediaController;
+use PixlMint\Media\Hooks\MediaGetHook;
 
 return [
     'routes' => [
@@ -29,5 +30,11 @@ return [
             'controller' => MediaController::class,
             'function' => 'deleteMedia',
         ],
-    ]
+    ],
+    'hooks' => [
+        [
+            'anchor' => 'pre_find_route',
+            'hook' => MediaGetHook::class,
+        ]
+    ],
 ];

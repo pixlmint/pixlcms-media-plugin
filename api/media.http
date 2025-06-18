@@ -24,3 +24,6 @@ media=/media/2024-half-marathon/932db96ad8c2af06aba05538d7c5f063a79be95117373772
 ### Load Gallery
 GET {{HOST}}/api/admin/gallery/load?gallery=/2024-half-marathon
 pixltoken: {{TOKEN}}
+
+### Load Image
+GET {{HOST}}/media/2024-half-marathon/1080/2bfaab41e029597088fd43f7a26eac9659a06d8cwallpaper_20250217.jpg.webp

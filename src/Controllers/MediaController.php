@@ -163,4 +163,19 @@ class MediaController extends AbstractController
 
         return $this->json($delete);
     }
+
+    // /media/*
+    public function getMedia(RequestInterface $request): HttpResponse
+    {
+        $mediaPath = $request->getRoute()->getPath();
+        $response = new HttpResponse('');
+        if (!file_exists($mediaPath)) {
+            $response->setStatus(404);
+            return $response;
+        } else {
+            header('Content-Type: image/webp');
+            readfile($mediaPath);
+            return $response;
+        }
+    }
 }
