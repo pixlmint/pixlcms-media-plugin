@@ -95,7 +95,7 @@ class MediaHelper
             }
         }
         if (!$extensionFound) {
-            throw new \Exception("Unable to match extesion $extension");
+            throw new \Exception("Unable to match extension $extension");
         }
 
         return null;
