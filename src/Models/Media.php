@@ -93,6 +93,11 @@ class Media extends AbstractModel implements ArrayableInterface, ModelInterface
         return $_SERVER['DOCUMENT_ROOT'] . $this->getMediaPath($size);
     }
 
+    public function getPageBase(): string
+    {
+        return $this->directory->getRelativePath();
+    }
+
     /**
      * Relative Path of the directory the media is in
      */

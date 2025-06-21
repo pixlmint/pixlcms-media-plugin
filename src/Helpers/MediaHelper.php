@@ -2,12 +2,16 @@
 
 namespace PixlMint\Media\Helpers;
 
+use Nacho\Contracts\PageManagerInterface;
+use Nacho\Helpers\PageManager;
+use Nacho\Models\PicoPage;
 use PixlMint\CMS\Helpers\CMSConfiguration;
 use PixlMint\Media\Contracts\MediaProcessor;
 use PixlMint\Media\Contracts\ScalableMediaProcessor;
 use PixlMint\Media\Models\Media;
 use PixlMint\Media\Models\MediaGalleryDirectory;
 use PixlMint\Media\Models\MediaList;
+use PixlMint\Media\Models\ScaledMedia;
 
 class MediaHelper
 {
@@ -15,13 +19,15 @@ class MediaHelper
     private array $mediaHelpers = [];
 
     private string $mediaDir;
+    private PageManagerInterface $pageManager;
 
-    public function __construct(WebpMediaType $jpegMediaType, VideoMediaType $videoMediaType, SvgMediaType $svgMediaType, CMSConfiguration $cmsConfiguration)
+    public function __construct(WebpMediaType $jpegMediaType, VideoMediaType $videoMediaType, SvgMediaType $svgMediaType, CMSConfiguration $cmsConfiguration, PageManagerInterface $pageManager)
     {
         $this->mediaHelpers['img'] = $jpegMediaType;
         $this->mediaHelpers['vid'] = $videoMediaType;
         $this->mediaHelpers['svg'] = $svgMediaType;
         $this->mediaDir = $cmsConfiguration->mediaDir();
+        $this->pageManager = $pageManager;
     }
 
     public function store(MediaGalleryDirectory $directory, array $file): array
@@ -80,6 +86,8 @@ class MediaHelper
         $basename = $pathinfo['basename'];
 
         $mediaDirectory = MediaGalleryDirectory::fromPath($dirname);
+        /* print("dirname: $dirname, extension: $extension, basename: $basename\n"); */
+        /* print_r($pathinfo); */
 
         $extensionFound = false;
         foreach ($this->mediaHelpers as $helper) {
@@ -88,7 +96,8 @@ class MediaHelper
                 $extensionFound = true;
                 foreach ($helper->loadMedia($mediaDirectory) as $media) {
                     /** @var Media $media */
-                    if ($media->getName() === $basename) {
+                    /* print("{$media->getName()}\n"); */
+                    if ($media->getName() === $basename || str_starts_with($basename, $media->getName())) {
                         return $media;
                     }
                 }
@@ -125,5 +134,11 @@ class MediaHelper
         }
 
         throw new \Exception(sprintf('No applicable MediaProcessor found for file %s', $fileName));
+    }
+
+    public function getMediaPage(Media $media): ?PicoPage
+    {
+        $pageDir = $media->getPageBase();
+        return $this->pageManager->getPage('/' . $pageDir);
     }
 }

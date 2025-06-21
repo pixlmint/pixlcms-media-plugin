@@ -17,6 +17,11 @@ class MediaGalleryDirectory
         $galleryPath = ltrim($galleryPath, "media/");
         $splPath = explode('/', $galleryPath);
 
+        if (count($splPath) > 0 && is_numeric($splPath[count($splPath) - 1])) {
+            // it's probably the size suffix, remove that
+            array_pop($splPath);
+        }
+
         return new self($splPath);
     }
 
