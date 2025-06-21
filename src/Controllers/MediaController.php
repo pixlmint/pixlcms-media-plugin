@@ -7,6 +7,7 @@ use Nacho\Models\HttpResponse;
 use PixlMint\Media\Helpers\MediaHelper;
 use PixlMint\Media\Models\MediaGalleryDirectory;
 use Nacho\Controllers\AbstractController;
+use Nacho\Models\BinaryHttpResponse;
 use PixlMint\CMS\Helpers\CustomUserHelper;
 
 class MediaController extends AbstractController
@@ -168,13 +169,21 @@ class MediaController extends AbstractController
     public function getMedia(RequestInterface $request): HttpResponse
     {
         $mediaPath = $request->getRoute()->getPath();
-        $response = new HttpResponse('');
-        if (!file_exists($mediaPath)) {
+        $media = $this->mediaHelper->findMedia($mediaPath);
+        $response = new BinaryHttpResponse();
+        if (is_null($media)) {
             $response->setStatus(404);
             return $response;
         } else {
-            header('Content-Type: image/webp');
-            readfile($mediaPath);
+            // TODO: I still need to figure out how to do auth checking properly
+            //       in media requests
+            /*$page = $this->mediaHelper->getMediaPage($media);
+            if (is_null($page)) {
+                $response->setStatus(401);
+                return $response;
+            }*/
+            $response->setHeader('Content-Type', $media->getMime()->printMime());
+            $response->setFilepath($mediaPath);
             return $response;
         }
     }
