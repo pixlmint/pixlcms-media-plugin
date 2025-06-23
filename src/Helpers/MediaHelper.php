@@ -125,15 +125,20 @@ class MediaHelper
 
     public function getMediaHelper(string $fileName): MediaProcessor
     {
-        foreach ($this->mediaHelpers as $processor) {
+        return $this->mediaHelpers[$this->getMediaType($fileName)];
+    }
+
+    public function getMediaType(string $fileName): string
+    {
+        foreach ($this->mediaHelpers as $mediaType => $processor) {
             foreach ($processor::getApplicableExtensions() as $ext) {
                 if (FileNameHelper::extensionMatches($fileName, $processor::getApplicableExtensions())) {
-                    return $processor;
+                    return $mediaType;
                 }
             }
         }
 
-        throw new \Exception(sprintf('No applicable MediaProcessor found for file %s', $fileName));
+        throw new \Exception(sprintf('No applicable media type found for file %s', $fileName));
     }
 
     public function getMediaPage(Media $media): ?PicoPage

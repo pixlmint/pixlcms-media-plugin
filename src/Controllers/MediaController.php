@@ -9,6 +9,7 @@ use PixlMint\Media\Models\MediaGalleryDirectory;
 use Nacho\Controllers\AbstractController;
 use Nacho\Models\BinaryHttpResponse;
 use PixlMint\CMS\Helpers\CustomUserHelper;
+use PixlMint\Media\Helpers\MediaConfiguration;
 
 class MediaController extends AbstractController
 {
@@ -166,7 +167,7 @@ class MediaController extends AbstractController
     }
 
     // /media/*
-    public function getMedia(RequestInterface $request): HttpResponse
+    public function getMedia(RequestInterface $request, MediaConfiguration $mediaConfiguration): HttpResponse
     {
         $mediaPath = $request->getRoute()->getPath();
         $media = $this->mediaHelper->findMedia($mediaPath);
@@ -182,6 +183,9 @@ class MediaController extends AbstractController
                 $response->setStatus(401);
                 return $response;
             }*/
+            $mediaType = $this->mediaHelper->getMediaType($mediaPath);
+            $cacheConfig = $mediaConfiguration->cacheConfigurationForMediaType($mediaType);
+            $response->setHeader('Cache-Control', "public, max-age=$cacheConfig, immutable");
             $response->setHeader('Content-Type', $media->getMime()->printMime());
             $response->setFilepath($mediaPath);
             return $response;

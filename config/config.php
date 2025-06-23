@@ -37,4 +37,7 @@ return [
             'hook' => MediaGetHook::class,
         ]
     ],
+    'media' => [
+
+    ],
 ];
